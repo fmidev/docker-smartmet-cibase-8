@@ -1,0 +1,29 @@
+version: 2.0
+
+jobs:
+  build:
+    docker:
+      - image: alpine:latest
+    steps:
+      - checkout
+      - run:
+          name: Install curl
+          command: apk add curl
+      - run:
+          name: Rebuild on docker hub
+          command: sh rebuild-on-docker-hub.sh
+          
+workflows:
+  version: 2
+  commit-workflow:
+    jobs:
+      - build 
+  scheduled-workflow:
+    triggers:
+      - schedule:
+          cron: "10 11 * * *"
+          filters:
+            branches:
+              only: try-schedule-workflow
+    jobs:
+      - build
