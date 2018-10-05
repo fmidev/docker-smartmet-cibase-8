@@ -42,7 +42,6 @@ RUN \
  mkdir -p /var/cache/yum && \
  rm -f /root/anaconda-ks.cfg /anaconda-post.log
 
-
 # Prepare ccache usage. Build timeouts are greatly reduced, if
 # /ccache is mounted from host environment
 RUN mkdir -m 777 /ccache && \
@@ -55,6 +54,10 @@ RUN mkdir -m 777 /ccache && \
 
 VOLUME /var/cache/yum
 VOLUME /ccache
+
+# Prepare CI build scripts
+COPY ci-build.sh /usr/local/bin/ci-build.sh
+RUN ln -s ci-build.sh /usr/local/bin/ci-build
 
 # Run final stuff as rpmbuild
 USER rpmbuild
