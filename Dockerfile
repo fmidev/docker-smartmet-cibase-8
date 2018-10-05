@@ -4,6 +4,9 @@ FROM centos:latest
 # Possible also version locks and priorities
 # Not much useful in itself
 
+# Basic setup before running any yum commands
+RUN echo ip_resolve=4 >> /etc/yum.conf
+
 # Add EPEL repository and lock certain versions
 RUN \
  yum -y install http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
@@ -20,6 +23,10 @@ RUN \
  yum -y install ccache && \
  yum -y install git && \
  yum -y install rpmlint
+RUN yum -y install sudo
+RUN mkdir -p /etc/sudoers.d && echo 'ALL ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/all
+RUN curl -O /etc/yum.repos.d/libjpeg-turbo.repo https://libjpeg-turbo.org/pmwiki/uploads/Downloads/libjpeg-turbo.repo
+RUN useradd rpmbuild
 
 # Update everything
 RUN yum -y update
@@ -48,6 +55,9 @@ RUN mkdir -m 777 /ccache && \
 
 VOLUME /var/cache/yum
 VOLUME /ccache
+
+# Run final stuff as rpmbuild
+USER rpmbuild
 
 # Run shell
 CMD ["/bin/bash"]
