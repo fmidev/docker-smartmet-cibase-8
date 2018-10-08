@@ -1,5 +1,9 @@
 version: 2.0
 
+# The goal here is to generate updated(i.e. updates installed) base image every day.
+# This requires scheduled workflow
+# Currently, just triggers rebuild on Docker hub every day
+
 jobs:
   build:
     docker:
@@ -17,13 +21,10 @@ workflows:
   version: 2
   commit-workflow:
     jobs:
-      - build 
+      - build
   scheduled-workflow:
     triggers:
       - schedule:
           cron: "10 11 * * *"
-          filters:
-            branches:
-              only: try-schedule-workflow
     jobs:
       - build
