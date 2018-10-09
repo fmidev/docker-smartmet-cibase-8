@@ -31,6 +31,29 @@ RUN useradd rpmbuild
 # Update everything
 RUN yum -y update
 
+# Install gosu
+ENV GOSU_VERSION 1.10
+RUN set -ex; \
+	\
+	yum -y install epel-release; \
+	yum -y install wget dpkg; \
+	\
+	dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
+	wget -O /usr/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch"; \
+	wget -O /tmp/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
+	\
+# verify the signature
+	export GNUPGHOME="$(mktemp -d)"; \
+#	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 ; \
+#	gpg --batch --verify /tmp/gosu.asc /usr/bin/gosu; \
+	rm -fr "$GNUPGHOME" /tmp/gosu.asc; \
+	\
+	chmod +xs /usr/bin/gosu; \
+# verify that the binary works
+	gosu nobody true; \
+	\
+	yum -y remove wget dpkg
+
 # Keep yum cache around, useful for multiple runs of the same machine, if
 # /var/cache/yum is mounted from host environment.
 RUN sed -i -e 's/keepcache=0//' /etc/yum.conf && \
@@ -59,8 +82,14 @@ VOLUME /ccache
 COPY ci-build.sh /usr/local/bin/ci-build.sh
 RUN ln -s ci-build.sh /usr/local/bin/ci-build
 
+# Wrapper for uid manipulation and other stuff
+COPY wrapper.sh /usr/local/bin/wrapper.sh
+
 # Run final stuff as rpmbuild
 USER rpmbuild
+
+# Always run certain autodetection steps
+ENTRYPOINT [ "/usr/local/bin/wrapper.sh" ]
 
 # Run shell
 CMD ["/bin/bash"]
