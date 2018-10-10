@@ -91,11 +91,14 @@ for step in $* ; do
 		test -e /etc/yum.repos.d/pgdg-95-redhat.repo || insudo yum install -y https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-redhat95-9.5-3.noarch.rpm
 	    # Enable shared C Cache if enabled by surrounding environment(i.e. localbuild)
 	    test ! -d "/ccache/." || (
-	    	echo cache_dir=/ccache > /etc/ccache.conf
-	    	echo umask=006 >> /etc/ccache.conf
-	    	for i in c++ g++ gcc cc ; do
-	    		test -e /usr/local/bin/$i || insudo ln -s /usr/bin/ccache /usr/local/bin/$i
-	    	done
+	    	test -r /etc/ccache.conf || (
+		    	echo cache_dir=/ccache > /tmp/ccache.conf
+		    	echo umask=000 >> /tmp/ccache.conf
+		    	sudo mv /tmp/ccache.conf /etc/ccache.conf
+		    	for i in c++ g++ gcc cc ; do
+		    		test -e /usr/local/bin/$i || insudo ln -s /usr/bin/ccache /usr/local/bin/$i
+		    	done
+		    )
 	    )
 	    ccache -s
 	    ;;
