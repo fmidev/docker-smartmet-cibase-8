@@ -123,7 +123,7 @@ for step in $* ; do
 	    make -j "$jobs" rpm
 	    mkdir -p $HOME/dist
 	    for d in /root/rpmbuild $HOME/rpmbuild ; do
-	    	test ! -d "$d" || find "$d" -name \*.rpm -exec mv -v {} $DISTDIR \; 
+			test ! -d "$d" || find "$d" -name \*.rpm -exec sudo mv -v {} $DISTDIR \;
 	    done
 	    set +x
 	    echo "Distribution files are in $DISTDIR:"
