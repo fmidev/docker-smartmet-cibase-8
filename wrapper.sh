@@ -11,7 +11,7 @@ if [ "$LOCALUID" ] ; then
 fi
 
 # Execute various prepartion steps when running something inside the container
-if [ "$targetuid" != "0" -a "$targetuid" != "rpmbuild" ] ; then
+if [ "$targetuid" != "0" ] ; then
 	# Create a user for this user and make home available
 	gosu 0 groupadd -o -g 20 g$targetgid
 	gosu 0 useradd -o -m -u $targetuid -g $targetgid -s /bin/bash u$targetuid
