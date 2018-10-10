@@ -3,6 +3,13 @@
 targetuid=`id -u`
 targetgid=`id -g`
 
+# CircleCI CLI does not have -u parameter
+# We can pass the host system uids via environment
+if [ "$LOCALUID" ] ; then
+	targetuid=$LOCALUID
+	targetgid=${LOCALGID:-0}
+fi
+
 # Execute various prepartion steps when running something inside the container
 if [ "$targetuid" != "0" -a "$targetuid" != "rpmbuild" ] ; then
 	# Create a user for this user and make home available
@@ -16,9 +23,14 @@ fi
 if [  "$targetuid" != "0" ] ; then sudo chown -R $targetuid.$targetgid /var/cache/yum /ccache ; fi
 test -e /etc/ccache.conf && \
   sudo chown -R $targetuid.$targetgid /etc/ccache.conf && \
-  chmod 777 /etc/ccache.conf
+  sudo chmod 777 /etc/ccache.conf
 
-"$@"
+# Run as the target user
+if [ "$targetuid" != "`id -u`" ] ; then
+	sudo -u u$targetuid "$@" 
+else
+	"$@"
+fi
 
 # Make sure certain file permissions are left ok on host system
 if [  "$targetuid" != "0" ] ; then sudo chown -R $targetuid.$targetgid /var/cache/yum /ccache ; fi
