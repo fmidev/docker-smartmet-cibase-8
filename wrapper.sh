@@ -12,7 +12,13 @@ if [ "$targetuid" != "0" -a "$targetuid" != "rpmbuild" ] ; then
 	export HOME
 fi
 
+# Make sure certain file permissions are ok on host system
+if [  "$targetuid" != "0" ] ; then sudo chown -R $targetuid.$targetgid /var/cache/yum /ccache ; fi
+test -e /etc/ccache.conf && \
+  sudo chown -R $targetuid.$targetgid /etc/ccache.conf && \
+  chmod 777 /etc/ccache.conf
+
 "$@"
 
-# Make sure certain file permissions are ok on host system
+# Make sure certain file permissions are left ok on host system
 if [  "$targetuid" != "0" ] ; then sudo chown -R $targetuid.$targetgid /var/cache/yum /ccache ; fi
