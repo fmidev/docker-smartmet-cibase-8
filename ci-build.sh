@@ -17,8 +17,8 @@ function insudo {
 function usage { 
 	echo "usage: `basename $0` step [step] ..." >&2
 	echo "where steps are executed in order given and might be one of:" >&2
-	echo "  fmiprep  Install FMI repositories and related tools. Redundant if correct docker image is in use." >&2
-	echo "  prep     Prepare for building, generally installation of dependencies" >&2
+	echo "  fmiprep  Install FMI repositories and related tools" >&2
+	echo "  deps     Prepare for building such as installation of dependencies" >&2
 	echo "  build    Run make (in FMI projects generally does not build the RPM, CI usually wants RPM)" >&2
 	echo "  rpm      Build rpm and move over to directory defined by DISTDIR" >&2
 	echo "  testprep Prepare for testing i.e. install dependencies and link library files to test dirs" >&2
