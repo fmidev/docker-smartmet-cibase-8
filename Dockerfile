@@ -91,6 +91,7 @@ RUN sed -i -e 's/keepcache=0//' /etc/yum.conf && \
 USER rpmbuild
 
 # Always run certain autodetection steps
+# Sadly, CircleCI Local CLI apparently overrides entrypoint
 ENTRYPOINT [ "/usr/local/bin/wrapper.sh" ]
 
 # Run shell
