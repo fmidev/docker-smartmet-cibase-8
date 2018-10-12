@@ -2,38 +2,25 @@ FROM centos:latest
 
 # A base fmi image with proper repositories in place
 
-# Basic setup before running any yum commands
-RUN echo ip_resolve=4 >> /etc/yum.conf
-RUN curl -O /etc/yum.repos.d/libjpeg-turbo.repo https://libjpeg-turbo.org/pmwiki/uploads/Downloads/libjpeg-turbo.repo
+# These repos are unnecessary ...
+# They cause update problems in certain versions
+RUN rm /etc/yum.repos.d/CentOS-Vault.repo /etc/yum.repos.d/CentOS-Sources.repo
+
+# Prepare CI build scripts
+COPY ci-build.sh /usr/local/bin/ci-build.sh
+RUN ln -s ci-build.sh /usr/local/bin/ci-build
+
+# FMI proxy setup if needed
+COPY proxydetect.sh /usr/local/bin/proxydetect.sh
+RUN ln -s proxydetect.sh /usr/local/bin/proxydetect
 
 # Lock some library versions to prevent updates breaking smartmet-server
 COPY versionlock.list /etc/yum/pluginconf.d/versionlock.list
 
-# These repos are unnecessary and apparently cause update problems in certain versions
-RUN rm /etc/yum.repos.d/CentOS-Vault.repo /etc/yum.repos.d/CentOS-Sources.repo
-
-# Install some packeges
-# Everything is done in separate yum command because yum has a (mis)feature where the return value
-# is 0 for multiple packages if one of them succeeds. But we need for all of them to succeed.
-RUN \
- yum -y install http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
- yum -y install deltarpm && \
- yum -y install yum-plugin-versionlock && \
- yum -y install https://download.fmi.fi/smartmet-open/rhel/7/x86_64/smartmet-open-release-17.9.28-1.el7.fmi.noarch.rpm && \
- yum -y install https://download.fmi.fi/fmiforge/rhel/7/x86_64/fmiforge-release-17.9.28-1.el7.fmi.noarch.rpm && \
- yum -y install https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-redhat95-9.5-3.noarch.rpm && \
- yum -y install yum-utils && \
- yum -y install ccache && \
- yum -y install git && \
- yum -y install rpmlint && \
- yum -y install sudo && \
- yum -y update && \
- yum clean all && \
- rm -rf /var/cache/yum
- 
-# Configure sudo
-RUN mkdir -p /etc/sudoers.d && echo 'ALL ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/all && \
-	useradd rpmbuild
+# Basic setup before running any yum commands
+RUN echo ip_resolve=4 >> /etc/yum.conf && \
+    . /usr/local/bin/proxydetect && \
+    curl -O /etc/yum.repos.d/libjpeg-turbo.repo https://libjpeg-turbo.org/pmwiki/uploads/Downloads/libjpeg-turbo.repo
 
 # Install gosu
 ENV GOSU_VERSION 1.10
@@ -53,10 +40,34 @@ RUN set -ex; \
 	chmod +xs /usr/bin/gosu; \
 # verify that the binary works
 	gosu nobody true; \
-	yum -y remove wget dpkg ; \
+	yum -y remove wget dpkg epel-release ; \
 	yum clean all && \
  	rm -rf /var/cache/yum
-    
+
+# Install some packeges
+# Everything is done in separate yum command.
+# Yum has a (mis)feature where the return value is 0 for multiple packages
+# if one of them succeeds. But we need for all of them to succeed.
+RUN . /usr/local/bin/proxydetect && \
+ yum -y install http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
+ yum -y install deltarpm && \
+ yum -y install yum-plugin-versionlock && \
+ yum -y install https://download.fmi.fi/smartmet-open/rhel/7/x86_64/smartmet-open-release-17.9.28-1.el7.fmi.noarch.rpm && \
+ yum -y install https://download.fmi.fi/fmiforge/rhel/7/x86_64/fmiforge-release-17.9.28-1.el7.fmi.noarch.rpm && \
+ yum -y install https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-redhat95-9.5-3.noarch.rpm && \
+ yum -y install yum-utils && \
+ yum -y install ccache && \
+ yum -y install git && \
+ yum -y install rpmlint && \
+ yum -y install sudo && \
+ yum -y update && \
+ yum clean all && \
+ rm -rf /var/cache/yum
+ 
+# Configure sudo
+RUN mkdir -p /etc/sudoers.d && echo 'ALL ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/all && \
+	useradd rpmbuild
+
 # Cleanup, leave YUM cache empty initially 
 RUN \
  yum clean all && \
@@ -74,16 +85,14 @@ RUN mkdir -m 777 /ccache && \
     ln -s /usr/bin/ccache /usr/local/bin/gcc && \
     ln -s /usr/bin/ccache /usr/local/bin/cc
 
-# Prepare CI build scripts
-COPY ci-build.sh /usr/local/bin/ci-build.sh
-RUN ln -s ci-build.sh /usr/local/bin/ci-build
-
 # Wrapper for uid manipulation and other stuff
 COPY wrapper.sh /usr/local/bin/wrapper.sh
 
 # Keep yum cache around, useful for multiple runs of the same machine, if
 # /var/cache/yum is mounted from host environment.
-# This step must be done in the end so that yum is not going to be used anymore on docker build
+# This step must be done in the end so that yum is not going to be
+# used anymore on docker build. Otherwise intermediate containers
+# may become large accidentally.
 RUN sed -i -e 's/keepcache=0//' /etc/yum.conf && \
     echo keepcache=1 >> /etc/yum.conf
 
