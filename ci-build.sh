@@ -55,7 +55,8 @@ if [ -z "$DISTDIR" ] ; then
     test ! -d "$HOME/dist" || DISTDIR="$HOME/dist"
     test -n "$DISTDIR" || DISTDIR="/dist" # The default
 fi
-test -d "$DISTDIR/." || mkdir -p "$DISTDIR"
+test -d "$DISTDIR/." || insudo mkdir -p "$DISTDIR"
+insudo chown `id -u` "$DISTDIR/."
 export DISTDIR
 
 set -ex
@@ -125,7 +126,7 @@ for step in $* ; do
 	    make -j "$jobs" rpm
 	    mkdir -p $HOME/dist
 	    for d in /root/rpmbuild $HOME/rpmbuild ; do
-			test ! -d "$d" || find "$d" -name \*.rpm -exec sudo mv -v {} $DISTDIR \;
+			test ! -d "$d" || find "$d" -name \*.rpm -exec sudo mv -v {} "$DISTDIR/" \;
 	    done
 	    set +x
 	    echo "Distribution files are in $DISTDIR:"
