@@ -14,6 +14,9 @@ RUN ln -s ci-build.sh /usr/local/bin/ci-build
 COPY proxydetect.sh /usr/local/bin/proxydetect.sh
 RUN ln -s proxydetect.sh /usr/local/bin/proxydetect
 
+# Wrapper for uid manipulation and other stuff
+COPY wrapper.sh /usr/local/bin/wrapper.sh
+
 # Lock some library versions to prevent updates breaking smartmet-server
 COPY versionlock.list /etc/yum/pluginconf.d/versionlock.list
 
@@ -73,7 +76,10 @@ RUN \
  yum clean all && \
  rm -rf /var/cache/yum && \
  mkdir -p /var/cache/yum && \
- rm -f /root/anaconda-ks.cfg /anaconda-post.log
+ rm -f /root/anaconda-ks.cfg /anaconda-post.log && \
+ mkdir -p /dist && \
+ chmod 4777 /dist/. && \
+ rm -rf /tmp/*
 
 # Prepare ccache usage. Build timeouts are greatly reduced, if
 # /ccache is mounted from host environment
@@ -84,9 +90,6 @@ RUN mkdir -m 777 /ccache && \
     ln -s /usr/bin/ccache /usr/local/bin/g++ && \
     ln -s /usr/bin/ccache /usr/local/bin/gcc && \
     ln -s /usr/bin/ccache /usr/local/bin/cc
-
-# Wrapper for uid manipulation and other stuff
-COPY wrapper.sh /usr/local/bin/wrapper.sh
 
 # Keep yum cache around, useful for multiple runs of the same machine, if
 # /var/cache/yum is mounted from host environment.
