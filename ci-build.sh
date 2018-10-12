@@ -48,7 +48,6 @@ fi
 echo "Source tree base is in `pwd`"
 echo "Git origin is `git remote get-url origin`"
 
-
 # Try to find/create suitable directory for build time distribution files
 if [ -z "$DISTDIR" ] ; then
     test ! -d "/dist" || DISTDIR="/dist"
@@ -68,6 +67,9 @@ test -z "$http_proxy" || (
            insudo tee -a /etc/yum.conf
 )
 
+# Make sure ccache is actually writable if it is available
+test -w /ccache/. || sudo chown -R `id -u` /ccache/.
+
 for step in $* ; do
     case $step in
 	update)
@@ -82,23 +84,23 @@ for step in $* ; do
 	    # wrong URLs in these in some cases
 	    insudo rm -f /etc/yum.repos.d/CentOS-Vault.repo /etc/yum.repos.d/CentOS-Sources.repo
 	    # Install various packages if needed
-		command -v yum-builddep 2>/dev/null || insudo yum install -y yum-utils
-		command -v git 2>/dev/null || insudo yum install -y git
-		command -v ccache 2>/dev/null || insudo yum install -y ccache
-		test -e /etc/yum.repos.d/epel.repo 2>/dev/null || insudo yum install -y http://www.nic.funet.fi/pub/mirrors/fedora.redhat.com/pub/epel/epel-release-latest-7.noarch.rpm
-		test -e /etc/yum.repos.d/smartmet-open.repo || insudo yum install -y https://download.fmi.fi/smartmet-open/rhel/7/x86_64/smartmet-open-release-17.9.28-1.el7.fmi.noarch.rpm
-		test -e /etc/yum.repos.d/fmiforge.repo || insudo yum install -y https://download.fmi.fi/fmiforge/rhel/7/x86_64/fmiforge-release-17.9.28-1.el7.fmi.noarch.rpm
-		test -e /etc/yum.repos.d/pgdg-95-redhat.repo || insudo yum install -y https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-redhat95-9.5-3.noarch.rpm
+	    command -v yum-builddep 2>/dev/null || insudo yum install -y yum-utils
+	    command -v git 2>/dev/null || insudo yum install -y git
+	    command -v ccache 2>/dev/null || insudo yum install -y ccache
+	    test -e /etc/yum.repos.d/epel.repo 2>/dev/null || insudo yum install -y http://www.nic.funet.fi/pub/mirrors/fedora.redhat.com/pub/epel/epel-release-latest-7.noarch.rpm
+	    test -e /etc/yum.repos.d/smartmet-open.repo || insudo yum install -y https://download.fmi.fi/smartmet-open/rhel/7/x86_64/smartmet-open-release-17.9.28-1.el7.fmi.noarch.rpm
+	    test -e /etc/yum.repos.d/fmiforge.repo || insudo yum install -y https://download.fmi.fi/fmiforge/rhel/7/x86_64/fmiforge-release-17.9.28-1.el7.fmi.noarch.rpm
+	    test -e /etc/yum.repos.d/pgdg-95-redhat.repo || insudo yum install -y https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-redhat95-9.5-3.noarch.rpm
 	    # Enable shared C Cache if enabled by surrounding environment(i.e. localbuild)
 	    test ! -d "/ccache/." || (
 	    	test -r /etc/ccache.conf || (
-		    	echo cache_dir=/ccache > /tmp/ccache.conf
-		    	echo umask=000 >> /tmp/ccache.conf
-		    	sudo mv /tmp/ccache.conf /etc/ccache.conf
-		    	for i in c++ g++ gcc cc ; do
-		    		test -e /usr/local/bin/$i || insudo ln -s /usr/bin/ccache /usr/local/bin/$i
-		    	done
-		    )
+		    echo cache_dir=/ccache > /tmp/ccache.conf
+		    echo umask=000 >> /tmp/ccache.conf
+		    sudo mv /tmp/ccache.conf /etc/ccache.conf
+		    for i in c++ g++ gcc cc ; do
+		    	test -e /usr/local/bin/$i || insudo ln -s /usr/bin/ccache /usr/local/bin/$i
+		    done
+		)
 	    )
 	    ccache -s
 	    ;;
@@ -128,6 +130,9 @@ for step in $* ; do
 	    set +x
 	    echo "Distribution files are in $DISTDIR:"
 	    ls -l $DISTDIR
+	    ;;
+	dummy)
+	    # Do nothing but may have modified yum.conf etc.
 	    ;;
 	*)
 	    echo "Unknown build step $step"
