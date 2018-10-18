@@ -23,14 +23,21 @@ function usage {
 	echo "  build    Run make but does not produce RPM" >&2
 	echo "           In CI you generally want rpm instead" >&2
 	echo "  rpm      Build rpm and move over to directory defined by DISTDIR" >&2
+	echo "  install  Install all files in DISTDIR" >&2
 	echo "  testprep Prepare for testing i.e. install dependencies" >&2
 	echo "           Also links library files to test to work dir" >&2
 	echo "  test     Run make test" >&2
+	echo "">&2
+	echo "DISTDIR=$DISTDIR" >&2
 	exit 1
 }
 
 # Number of jobs to use in make
 jobs=`fgrep processor /proc/cpuinfo | wc -l`
+
+# Define DISTDIR
+test -d "$DISTDIR/." || insudo mkdir -p "$DISTDIR"
+export DISTDIR
 
 # Help
 if [ "$#" -lt "1" ] ; then usage ; fi
@@ -55,9 +62,7 @@ if [ -z "$DISTDIR" ] ; then
     test ! -d "$HOME/dist" || DISTDIR="$HOME/dist"
     test -n "$DISTDIR" || DISTDIR="/dist" # The default
 fi
-test -d "$DISTDIR/." || insudo mkdir -p "$DISTDIR"
 insudo chown `id -u` "$DISTDIR/."
-export DISTDIR
 
 set -ex
 echo DISTDIR: $DISTDIR
@@ -104,6 +109,9 @@ for step in $* ; do
 		)
 	    )
 	    ccache -s
+	    ;;
+	install)
+	    insudo yum install -y $DISTDIR/*.rpm
 	    ;;
 	cache)
 	    insudo yum clean all
