@@ -30,11 +30,12 @@ ENV GOSU_VERSION 1.10
 RUN set -ex; \
 	\
 	yum -y install epel-release; \
-	yum -y install wget dpkg; \
+	yum -y install wget; \	
+	yum -y install dpkg; \
 	\
 	dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
-	wget -O /usr/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch"; \
-	wget -O /tmp/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
+	wget --quiet -O /usr/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch"; \
+	wget --quiet -O /tmp/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
 # verify the signature
 	export GNUPGHOME="$(mktemp -d)"; \
 #	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 ; \
@@ -43,16 +44,16 @@ RUN set -ex; \
 	chmod +xs /usr/bin/gosu; \
 # verify that the binary works
 	gosu nobody true; \
-	yum -y remove wget dpkg epel-release ; \
+	yum -y remove dpkg ; \
 	yum clean all && \
- 	rm -rf /var/cache/yum
+ 	rm -rf /tmp/* /var/cache/yum
 
 # Install some packeges
 # Everything is done in separate yum command.
 # Yum has a (mis)feature where the return value is 0 for multiple packages
 # if one of them succeeds. But we need for all of them to succeed.
 RUN . /usr/local/bin/proxydetect && \
- yum -y install http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
+ yum -y install rpm-build && \
  yum -y install deltarpm && \
  yum -y install yum-plugin-versionlock && \
  yum -y install https://download.fmi.fi/smartmet-open/rhel/7/x86_64/smartmet-open-release-17.9.28-1.el7.fmi.noarch.rpm && \
