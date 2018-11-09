@@ -2,3 +2,8 @@
 .buildage
 in.c
 out.o
+
+# Eclipse may create these
+.settings/
+.project
+.cproject
