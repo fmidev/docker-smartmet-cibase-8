@@ -33,7 +33,18 @@ function usage {
 }
 
 # Number of jobs to use in make
-jobs=`fgrep processor /proc/cpuinfo | wc -l`
+if [ "$CIRCLE_BUILD_NUM" ] ; then
+	# Running inside real CircleCI cloud service(not local simulation/other CI system)
+	# CircleCI cloud shows excessive amounts of CPUs but has very little memory
+	# Using multiple jobs will cause out-of-memory errors and compiles will fail.
+	# Limit the amount of CPUs to use there
+	RPM_BUILD_NCPUS=3
+else
+	# Local builds don't have a build number
+	# Using the maximum available
+	RPM_BUILD_NCPUS=`fgrep processor /proc/cpuinfo | wc -l`
+fi
+export RPM_BUILD_NCPUS
 
 # Define DISTDIR
 test -d "$DISTDIR/." || insudo mkdir -p "$DISTDIR"
@@ -123,15 +134,15 @@ for step in $* ; do
 	    ;;
 	testprep)
            rpm -qlp $DISTDIR/*.rpm | grep '[.]so$' | \
-               xargs --no-run-if-empty -I LIB -P "$jobs" -n 1 ln -svf LIB .
+               xargs --no-run-if-empty -I LIB -P 10 -n 1 ln -svf LIB .
 	    sed -e 's/^BuildRequires:/#BuildRequires:/' -e 's/^#TestRequires:/BuildRequires:/' < *.spec > /tmp/test.spec
 	    insudo yum-builddep -y /tmp/test.spec
 	    ;;
 	test)
-	    make -j "$jobs" test
+	    make -j "$RPM_BUILD_NCPUS" test
 	    ;;
 	rpm)
-	    make -j "$jobs" rpm
+	    make -j "$RPM_BUILD_NCPUS" rpm
 	    mkdir -p $HOME/dist
 	    for d in /root/rpmbuild $HOME/rpmbuild ; do
 			test ! -d "$d" || find "$d" -name \*.rpm -exec sudo mv -v {} "$DISTDIR/" \;
