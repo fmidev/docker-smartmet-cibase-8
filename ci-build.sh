@@ -45,6 +45,7 @@ else
 	RPM_BUILD_NCPUS=`fgrep processor /proc/cpuinfo | wc -l`
 fi
 export RPM_BUILD_NCPUS
+echo RPM_BUILD_NCPUS=$RPM_BUILD_NCPUS
 
 # Define DISTDIR
 test -d "$DISTDIR/." || insudo mkdir -p "$DISTDIR"
