@@ -53,12 +53,11 @@ RUN set -ex; \
 # Yum has a (mis)feature where the return value is 0 for multiple packages
 # if one of them succeeds. But we need for all of them to succeed.
 RUN . /usr/local/bin/proxydetect && \
- yum -y install rpm-build && \
  yum -y install deltarpm && \
+ yum -y install rpm-build && \
  yum -y install yum-plugin-versionlock && \
  yum -y install https://download.fmi.fi/smartmet-open/rhel/7/x86_64/smartmet-open-release-17.9.28-1.el7.fmi.noarch.rpm && \
  yum -y install https://download.fmi.fi/fmiforge/rhel/7/x86_64/fmiforge-release-17.9.28-1.el7.fmi.noarch.rpm && \
- yum -y install https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-redhat95-9.5-3.noarch.rpm && \
  yum -y install yum-utils && \
  yum -y install ccache && \
  yum -y install git && \
@@ -67,7 +66,10 @@ RUN . /usr/local/bin/proxydetect && \
  yum -y update && \
  yum clean all && \
  rm -rf /var/cache/yum
- 
+
+# Removed Postgresql 9.5. for now as it causes trouble with boost libraries
+# yum -y install https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-redhat95-9.5-3.noarch.rpm && \
+
 # Configure sudo
 RUN mkdir -p /etc/sudoers.d && echo 'ALL ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/all && \
 	useradd rpmbuild
