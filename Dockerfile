@@ -49,6 +49,7 @@ RUN set -ex; \
  	rm -rf /tmp/* /var/cache/yum
 
 # Install some packeges
+# Newer than CentOS libpqxx is required to get correct compile results in libraries requiring it
 # Everything is done in separate yum command.
 # Yum has a (mis)feature where the return value is 0 for multiple packages
 # if one of them succeeds. But we need for all of them to succeed.
@@ -63,12 +64,15 @@ RUN . /usr/local/bin/proxydetect && \
  yum -y install git && \
  yum -y install rpmlint && \
  yum -y install sudo && \
+ yum -y install https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-redhat95-9.5-3.noarch.rpm && \
+ yum -y install libpqxx && \
+ yum -y install libpqxx-devel && \
  yum -y update && \
  yum clean all && \
  rm -rf /var/cache/yum
 
 # Removed Postgresql 9.5. for now as it causes trouble with boost libraries
-# yum -y install https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-redhat95-9.5-3.noarch.rpm && \
+RUN rpm -e pgdg-redhat95
 
 # Configure sudo
 RUN mkdir -p /etc/sudoers.d && echo 'ALL ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/all && \
