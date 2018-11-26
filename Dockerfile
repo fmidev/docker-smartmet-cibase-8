@@ -48,11 +48,12 @@ RUN set -ex; \
 	yum clean all && \
  	rm -rf /tmp/* /var/cache/yum
 
-# Install some packeges
-# Newer than CentOS libpqxx is required to get correct compile results in libraries requiring it
-# Everything is done in separate yum command.
-# Yum has a (mis)feature where the return value is 0 for multiple packages
-# if one of them succeeds. But we need for all of them to succeed.
+# Preinstall some packeges and enable extra repositories
+# Yum has a (mis)feature where the return value is 0 for multiple packages if any of them succeed.
+# Have to run every install in a single command as they all need to succeed.
+# Other extra things:
+#  - install libpqxx from Postgresql 9.5 repos but disable thet repo after it
+#  - reinstall glibc-common with changed lang settings. Otherwise we get errors when using locales.
 RUN . /usr/local/bin/proxydetect && \
  yum -y install deltarpm && \
  yum -y install rpm-build && \
@@ -67,14 +68,13 @@ RUN . /usr/local/bin/proxydetect && \
  yum -y install https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-redhat95-9.5-3.noarch.rpm && \
  yum -y install libpqxx && \
  yum -y install libpqxx-devel && \
+ rpm -e pgdg-redhat95 && \
  yum -y update && \
+ yum -y reinstall --setopt=override_install_langs='' --setopt=tsflags='' glibc-common && \
  yum clean all && \
  rm -rf /var/cache/yum
 
-# Removed Postgresql 9.5. for now as it causes trouble with boost libraries
-RUN rpm -e pgdg-redhat95
-
-# Configure sudo
+## Configure sudo
 RUN mkdir -p /etc/sudoers.d && echo 'ALL ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/all && \
 	useradd rpmbuild
 
