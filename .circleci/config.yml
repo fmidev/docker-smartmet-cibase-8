@@ -9,10 +9,13 @@ jobs:
     docker:
       - image: alpine:latest
     steps:
-      - checkout
       - run:
-          name: Install curl
-          command: apk add curl
+          name: Install packages
+          command: |
+           apk add curl
+           apk add git
+           apk add yajl-tools
+      - checkout
       - run:
           name: Rebuild on docker hub
           command: sh rebuild-on-docker-hub.sh
