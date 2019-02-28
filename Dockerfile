@@ -4,7 +4,7 @@ FROM centos:latest
 
 # These repos are unnecessary ...
 # They cause update problems in certain versions
-RUN rm /etc/yum.repos.d/CentOS-Vault.repo /etc/yum.repos.d/CentOS-Sources.repo
+RUN rm -f /etc/yum.repos.d/CentOS-Vault.repo /etc/yum.repos.d/CentOS-Sources.repo
 
 # Prepare CI build scripts
 COPY ci-build.sh /usr/local/bin/ci-build.sh
@@ -27,7 +27,7 @@ RUN echo ip_resolve=4 >> /etc/yum.conf && \
 
 # Install gosu
 ENV GOSU_VERSION 1.10
-RUN set -ex; \
+RUN set -ex; . /usr/local/bin/proxydetect; \
 	\
 	yum -y install epel-release; \
 	yum -y install wget; \	
