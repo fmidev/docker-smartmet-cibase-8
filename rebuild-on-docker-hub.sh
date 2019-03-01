@@ -6,7 +6,7 @@ trap "rm -f $tmpfile" EXIT
 rebuilding="yes"
 
 while [ "$rebuilding" ] ; do
-    curl -H "Content-Type: application/json" --data '{"build": true}' -X POST https://registry.hub.docker.com/u/fmidev/smartmet-cibase/trigger/eae5f518-2c1e-4d5b-9b18-b8abc52c8acd/ >"$tmpfile"
+    curl -H "Content-Type: application/json" --data '{"build": true}' -X POST "https://cloud.docker.com/api/build/v1/source/ea31c6b5-8ca1-4d0f-bd03-49eedd44c7f7/trigger/356f5bd2-1b0d-4fbf-a502-f706b6e7910d/call/" >"$tmpfile"
     rebuilding=`fgrep '"state": "Building"' < $tmpfile`
     if [ "$rebuilding" ] ; then
         echo "Still building previous version, waiting to retrigger build"
