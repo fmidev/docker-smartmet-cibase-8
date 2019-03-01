@@ -16,6 +16,7 @@ jobs:
            apk add curl
            apk add git
            apk add gzip
+           apk add openssh
            apk add yajl-tools
       - checkout
       - setup_remote_docker
@@ -42,6 +43,7 @@ jobs:
           command: |
            apk add curl
            apk add git
+           apk add openssh
            apk add yajl-tools
       - checkout
       - run:
