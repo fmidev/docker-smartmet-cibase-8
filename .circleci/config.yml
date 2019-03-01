@@ -50,12 +50,13 @@ jobs:
           
 workflows:
   version: 2
-  commit-workflow:
+  commit:
     jobs:
       - build
       - hub:
-         requires: build
-  scheduled-workflow:
+         requires: 
+          - build
+  scheduled:
     triggers:
       - schedule:
           cron: "10 11 * * *"
