@@ -3,13 +3,18 @@
 tmpfile=`mktemp`
 trap "rm -f $tmpfile" EXIT
 
-curl -H "Content-Type: application/json" --data '{"build": true}' -X POST https://registry.hub.docker.com/u/fmidev/smartmet-cibase/trigger/eae5f518-2c1e-4d5b-9b18-b8abc52c8acd/ >"$tmpfile"
+rebuilding="yes"
 
-if command -v json_reformat >/dev/null ; then
- 	json_reformat < "$tmpfile"
-else 
-	cat "$tmpfile"
-fi
+while [ "$rebuilding" ] ; do
+    curl -H "Content-Type: application/json" --data '{"build": true}' -X POST https://registry.hub.docker.com/u/fmidev/smartmet-cibase/trigger/eae5f518-2c1e-4d5b-9b18-b8abc52c8acd/ >"$tmpfile"
+    rebuilding=`fgrep '"state": "Building"' < $tmpfile`
+    if [ "$rebuilding" ] ; then
+        echo "Still building previous version, waiting to retrigger build"
+        sleep 60
+    fi
+done
+
+json_reformat < "$tmpfile" || cat "$tmpfile"
 
 # Check status
 if fgrep -q '"state": "Success"' "$tmpfile" ; then
