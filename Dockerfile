@@ -60,15 +60,15 @@ RUN . /usr/local/bin/proxydetect && \
  yum -y install yum-plugin-versionlock && \
  yum -y install https://download.fmi.fi/smartmet-open/rhel/7/x86_64/smartmet-open-release-17.9.28-1.el7.fmi.noarch.rpm && \
  yum -y install https://download.fmi.fi/fmiforge/rhel/7/x86_64/fmiforge-release-17.9.28-1.el7.fmi.noarch.rpm && \
- yum -y install yum-utils && \
  yum -y install ccache && \
+ yum -y install createrepo_c && \
  yum -y install git && \
- yum -y install rpmlint && \
  yum -y install sudo && \
+ yum -y install rpmlint && \
+ yum -y install yum-utils && \
  yum -y install https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-redhat95-9.5-3.noarch.rpm && \
  yum -y install libpqxx && \
  yum -y install libpqxx-devel && \
- yum -y install createrepo_c && \
  rpm -e pgdg-redhat95 && \
  yum -y update && \
  yum -y reinstall --setopt=override_install_langs='' --setopt=tsflags='' glibc-common && \
