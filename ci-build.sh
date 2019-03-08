@@ -134,7 +134,8 @@ for step in $* ; do
 	    insudo yum-builddep -y *.spec
 	    ;;
 	testprep)
-           rpm -qlp $DISTDIR/*.rpm | grep '[.]so$' | \
+	    # Symbolically link already installed smartmet .so files here
+        rpm -qal | grep 'smartmet-[^/]*[.]so$' | \
                xargs --no-run-if-empty -I LIB -P 10 -n 1 ln -svf LIB .
 	    sed -e 's/^BuildRequires:/#BuildRequires:/' -e 's/^#TestRequires:/BuildRequires:/' < *.spec > /tmp/test.spec
 	    insudo yum-builddep -y /tmp/test.spec
@@ -144,13 +145,18 @@ for step in $* ; do
 	    ;;
 	rpm)
 	    make -j "$RPM_BUILD_NCPUS" rpm
-	    mkdir -p $HOME/dist
+	    tmpd=`mktemp -d`
 	    for d in /root/rpmbuild $HOME/rpmbuild ; do
-			test ! -d "$d" || find "$d" -name \*.rpm -exec sudo mv -v {} "$DISTDIR/" \;
+			test ! -d "$d" || find "$d" -name \*.rpm -exec sudo mv -v {} "$tmpd" \;
 	    done
-	    set +x
-	    echo "Distribution files are in $DISTDIR:"
-	    ls -l $DISTDIR
+        mkdir -p $HOME/dist
+        mname=`basename *.spec .spec`
+        ( cd "$tmpd" ; ls *.rpm > "$mname.lst" )
+        set +x
+        echo "List of RPMs produced:"
+        cat "$tmpd/$mname.lst"
+        mv "$tmpd"/* "$DISTDIR"
+	    echo "Distribution files and file list are now in $DISTDIR"
 	    ;;
 	dummy)
 	    # Do nothing but may have modified yum.conf etc.
