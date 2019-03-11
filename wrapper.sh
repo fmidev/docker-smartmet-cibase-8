@@ -25,6 +25,10 @@ test -e /etc/ccache.conf && \
   sudo chown -R $targetuid.$targetgid /etc/ccache.conf && \
   sudo chmod 777 /etc/ccache.conf
 
+# Modify path
+PATH=/usr/local/bin:$PATH
+export PATH
+
 # Run as the target user
 if [ "$targetuid" != "`id -u`" ] ; then
 	sudo -u u$targetuid "$@" 
