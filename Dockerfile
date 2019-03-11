@@ -99,13 +99,16 @@ RUN mkdir -m 777 /ccache && \
     ln -s /usr/bin/ccache /usr/local/bin/gcc && \
     ln -s /usr/bin/ccache /usr/local/bin/cc
 
-# Keep yum cache around, useful for multiple runs of the same machine, if
-# /var/cache/yum is mounted from host environment.
+# Keep yum cache around
+# Useful for multiple runs of the same machine, if /var/cache/yum is mounted from host environment.
 # This step must be done in the end so that yum is not going to be
 # used anymore on docker build. Otherwise intermediate containers
 # may become large accidentally.
+# Also make some other last minute modifications
 RUN sed -i -e 's/keepcache=0//' /etc/yum.conf && \
-    echo keepcache=1 >> /etc/yum.conf
+    echo keepcache=1 >> /etc/yum.conf && \
+    echo 'PATH=/usr/local/bin:$PATH' >> /etc/bashrc && \
+    echo 'export PATH' >> /etc/bashrc
 
 # Run final stuff as rpmbuild
 USER rpmbuild

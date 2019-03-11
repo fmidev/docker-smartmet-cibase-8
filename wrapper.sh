@@ -17,9 +17,6 @@ if [ "$targetuid" != "0" ] ; then
 	gosu 0 useradd -o -m -u $targetuid -g $targetgid -s /bin/bash u$targetuid
 	HOME=/home/u$targetuid
 	export HOME
-    # Modify path
-    echo 'PATH=/usr/local/bin:$PATH' >> $HOME/.bashrc
-    echo 'export PATH' >> $HOME/.bashrc
 fi
 
 # Make sure certain file permissions are ok on host system
