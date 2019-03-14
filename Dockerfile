@@ -79,6 +79,9 @@ RUN . /usr/local/bin/proxydetect && \
 RUN mkdir -p /etc/sudoers.d && echo 'ALL ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/all && \
 	useradd rpmbuild
 
+## Install CirleCI CLI
+RUN curl -fLSs https://circle.ci/cli | bash
+
 # Cleanup, leave YUM cache empty initially 
 RUN \
  yum clean all && \
