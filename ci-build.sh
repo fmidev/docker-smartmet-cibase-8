@@ -17,12 +17,8 @@ function insudo {
 function usage { 
 	echo "usage: `basename $0` step [step] ..." >&2
 	echo "where steps are executed in order given and might be one of:" >&2
-	echo "  fmiprep  Install FMI repositories and related tools" >&2
-	echo "           Not needed on every build if done alredy on docker image build" >&2
 	echo "  deps     Prepare for building such as installation of dependencies" >&2
-	echo "  build    Run make but does not produce RPM" >&2
-	echo "           In CI you generally want rpm instead" >&2
-	echo "  rpm      Build rpm and move over to directory defined by DISTDIR" >&2
+	echo "  rpm      Build rpms and move over to directory defined by DISTDIR" >&2
 	echo "  install  Install all files in DISTDIR" >&2
 	echo "  testprep Prepare for testing i.e. install dependencies" >&2
 	echo "           Also links library files to test to work dir" >&2
@@ -76,59 +72,25 @@ if [ -z "$DISTDIR" ] ; then
 fi
 insudo chown `id -u` "$DISTDIR/."
 
-set -ex
-echo DISTDIR: $DISTDIR
 # Make sure we are using proxy, if that is needed
 test -z "$http_proxy" || (
     grep -q "^proxy=" /etc/yum.conf || \
        echo proxy=$http_proxy | \
            insudo tee -a /etc/yum.conf
 )
+test ! -x /usr/local/bin/proxydetect || . /usr/local/bin/proxydetect
+test ! -x /usr/local/bin/proxydetect || insudo /usr/local/bin/proxydetect
+
+set -ex
+echo DISTDIR: $DISTDIR
 
 # Make sure ccache is actually writable if it is available
 test -w /ccache/. || sudo chown -R `id -u` /ccache/.
 
 for step in $* ; do
     case $step in
-	update)
-	    insudo yum install -y deltarpm
-	    # Update on filesystem package fails on CircleCI containers and on some else as well
-	    # Enable workaround
-	    insudo sed -i -e '$a%_netsharedpath /sys:/proc' /etc/rpm/macros.dist 
-	    insudo yum update -y
-	    ;;
-	fmiprep)
-	    # This will speedup future steps and there seems to be
-	    # wrong URLs in these in some cases
-	    insudo rm -f /etc/yum.repos.d/CentOS-Vault.repo /etc/yum.repos.d/CentOS-Sources.repo
-	    # Install various packages if needed
-	    command -v yum-builddep 2>/dev/null || insudo yum install -y yum-utils
-	    command -v git 2>/dev/null || insudo yum install -y git
-	    command -v ccache 2>/dev/null || insudo yum install -y ccache
-	    test -e /etc/yum.repos.d/epel.repo 2>/dev/null || insudo yum install -y http://www.nic.funet.fi/pub/mirrors/fedora.redhat.com/pub/epel/epel-release-latest-7.noarch.rpm
-	    test -e /etc/yum.repos.d/smartmet-open.repo || insudo yum install -y https://download.fmi.fi/smartmet-open/rhel/7/x86_64/smartmet-open-release-17.9.28-1.el7.fmi.noarch.rpm
-	    test -e /etc/yum.repos.d/fmiforge.repo || insudo yum install -y https://download.fmi.fi/fmiforge/rhel/7/x86_64/fmiforge-release-17.9.28-1.el7.fmi.noarch.rpm
-	    test -e /etc/yum.repos.d/pgdg-95-redhat.repo || insudo yum install -y https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-redhat95-9.5-3.noarch.rpm
-	    # Enable shared C Cache if enabled by surrounding environment(i.e. localbuild)
-	    test ! -d "/ccache/." || (
-	    	test -r /etc/ccache.conf || (
-		    echo cache_dir=/ccache > /tmp/ccache.conf
-		    echo umask=000 >> /tmp/ccache.conf
-		    sudo mv /tmp/ccache.conf /etc/ccache.conf
-		    for i in c++ g++ gcc cc ; do
-		    	test -e /usr/local/bin/$i || insudo ln -s /usr/bin/ccache /usr/local/bin/$i
-		    done
-		)
-	    )
-	    ccache -s
-	    ;;
 	install)
 	    insudo yum install -y $DISTDIR/*.rpm
-	    ;;
-	cache)
-	    insudo yum clean all
-	    insudo rm -rf /var/cache/yum
-	    insudo yum makecache
 	    ;;
 	deps)
 	    insudo yum-builddep -y *.spec
