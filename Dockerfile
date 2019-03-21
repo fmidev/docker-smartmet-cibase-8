@@ -63,6 +63,7 @@ RUN . /usr/local/bin/proxydetect && \
  yum -y install ccache && \
  yum -y install createrepo_c && \
  yum -y install git && \
+ yum -y install make && \
  yum -y install sudo && \
  yum -y install rpmlint && \
  yum -y install yum-utils && \
