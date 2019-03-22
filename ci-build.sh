@@ -50,6 +50,14 @@ export DISTDIR
 # Help
 if [ "$#" -lt "1" ] ; then usage ; fi
 
+# Workaround for apparent ccache race condition
+# Apparently, when ccache directory is completely empty, and multiple compilations are run simultanously,
+# a compilation may fail with an error indication ccache.conf is missing from the ccache directory.
+# However, this is normally created automatically. Perhaps simultanous runs break this.
+# Force creation of the file by checking statistics here.
+# Statictics are discarded, it just will create the file, if needed, as a side-effect.
+ccache -s >/dev/null 2>&1 || true
+
 # Search for the root of build tree but stop when in system root
 depthlimit=20
 while [ ! -d .git -a "$depthlimit" -gt "0"  ] ; do
