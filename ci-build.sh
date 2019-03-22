@@ -104,8 +104,10 @@ for step in $* ; do
 	    insudo yum-builddep -y *.spec
 	    ;;
 	testprep)
-	    # Symbolically link already installed smartmet .so files here
+	    # Symbolically link already installed smartmet .so and .a files here
         rpm -qal | grep 'smartmet-[^/]*[.]so$' | \
+               xargs --no-run-if-empty -I LIB -P 10 -n 1 ln -svf LIB .
+        rpm -qal | grep 'smartmet-[^/]*[.]a$' | \
                xargs --no-run-if-empty -I LIB -P 10 -n 1 ln -svf LIB .
         insudo yum install -y git make || true # Install make regardless but ignore errors
 	    sed -e 's/^BuildRequires:/#BuildRequires:/' -e 's/^#TestRequires:/BuildRequires:/' < *.spec > /tmp/test.spec
