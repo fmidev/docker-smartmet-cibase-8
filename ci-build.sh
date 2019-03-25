@@ -105,6 +105,8 @@ for step in $* ; do
 	    ;;
 	testprep)
 	    # Symbolically link already installed smartmet .so and .a files here
+	    find /usr/share/smartmet -name \*.so | \
+               xargs --no-run-if-empty -I LIB -P 10 -n 1 ln -svf LIB .
         rpm -qal | grep 'smartmet-[^/]*[.]so$' | \
                xargs --no-run-if-empty -I LIB -P 10 -n 1 ln -svf LIB .
         rpm -qal | grep 'smartmet-[^/]*[.]a$' | \
