@@ -120,8 +120,10 @@ for step in $* ; do
 	    insudo yum-builddep -y /tmp/test.spec
 	    ;;
 	test)
-	    ( test -r $test_disable && echo "Make test step disabled inside CI by existence of $test_disable, remove to enable tests"
-	      cat $test_disable  ) || make -j "$RPM_BUILD_NCPUS" test
+	    test -r $test_disable && (
+	       set +x 
+	       echo "Test step disabled by existence of $test_disable, remove to enable tests"
+	       cat $test_disable  ) || make -j "$RPM_BUILD_NCPUS" test
 	    ;;
 	rpm)
 	    make -j "$RPM_BUILD_NCPUS" rpm
