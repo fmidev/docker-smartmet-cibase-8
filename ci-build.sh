@@ -50,6 +50,9 @@ export DISTDIR
 # Help
 if [ "$#" -lt "1" ] ; then usage ; fi
 
+# Quick test disable: if this file exists, won't run make test
+test_disable=.circleci/disable-tests-in-ci
+
 # Workaround for apparent ccache race condition
 # Apparently, when ccache directory is completely empty, and multiple compilations are run simultanously,
 # a compilation may fail with an error indication ccache.conf is missing from the ccache directory.
@@ -95,6 +98,7 @@ echo DISTDIR: $DISTDIR
 # Make sure ccache is actually writable if it is available
 test -w /ccache/. || sudo chown -R `id -u` /ccache/.
 
+
 for step in $* ; do
     case $step in
 	install)
@@ -116,7 +120,8 @@ for step in $* ; do
 	    insudo yum-builddep -y /tmp/test.spec
 	    ;;
 	test)
-	    make -j "$RPM_BUILD_NCPUS" test
+	    ( test -r $test_disable && echo "Make test step disabled inside CI by existence of $test_disable, remove to enable tests"
+	      cat $test_disable  ) || make -j "$RPM_BUILD_NCPUS" test
 	    ;;
 	rpm)
 	    make -j "$RPM_BUILD_NCPUS" rpm
