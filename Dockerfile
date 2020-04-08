@@ -1,4 +1,4 @@
-FROM centos:latest
+FROM centos:7
 
 # A base fmi image with proper repositories in place
 
