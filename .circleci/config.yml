@@ -34,12 +34,27 @@ jobs:
              pwd
              ls
              ./build.sh
+  hub:
+    docker:
+      - image: alpine:latest
+    steps:
+      - run:
+          name: Install packages
+          command: |
+           apk add curl
+           apk add git
+           apk add openssh
+           apk add yajl-tools
+      - checkout
           
 workflows:
   version: 2
   commit:
     jobs:
       - build
+      - hub:
+         requires: 
+          - build
   scheduled:
     triggers:
       - schedule:
