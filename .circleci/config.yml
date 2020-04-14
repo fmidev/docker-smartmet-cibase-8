@@ -38,7 +38,8 @@ jobs:
 workflows:
   version: 2
   commit:
-    jobs: build
+    jobs:
+      - build
   scheduled:
     triggers:
       - schedule:
