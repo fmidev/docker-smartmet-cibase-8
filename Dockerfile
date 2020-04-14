@@ -30,7 +30,7 @@ ENV GOSU_VERSION 1.10
 RUN set -ex; . /usr/local/bin/proxydetect; \
 	\
 	yum -y install epel-release; \
-	yum -y install wget; \	
+	yum -y install wget; \
 	yum -y install dpkg; \
 	\
 	dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
@@ -84,7 +84,7 @@ RUN mkdir -p /etc/sudoers.d && echo 'ALL ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers
 ## Install CirleCI CLI
 RUN curl -fLSs https://circle.ci/cli | bash
 
-# Cleanup, leave YUM cache empty initially 
+# Cleanup, leave YUM cache empty initially
 RUN \
  yum clean all && \
  rm -rf /var/cache/yum && \
