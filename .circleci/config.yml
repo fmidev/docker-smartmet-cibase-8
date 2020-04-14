@@ -34,30 +34,11 @@ jobs:
              pwd
              ls
              ./build.sh
-  hub:
-    docker:
-      - image: alpine:latest
-    steps:
-      - run:
-          name: Install packages
-          command: |
-           apk add curl
-           apk add git
-           apk add openssh
-           apk add yajl-tools
-      - checkout
-      - run:
-          name: Rebuild on docker hub
-          command: sh rebuild-on-docker-hub.sh
           
 workflows:
   version: 2
   commit:
-    jobs:
-      - build
-      - hub:
-         requires: 
-          - build
+    jobs: build
   scheduled:
     triggers:
       - schedule:
