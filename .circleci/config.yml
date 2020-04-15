@@ -46,9 +46,6 @@ jobs:
            apk add openssh
            apk add yajl-tools
       - checkout
-      - run:
-          name: Rebuild on docker hub
-          command: sh rebuild-on-docker-hub.sh
           
 workflows:
   version: 2
