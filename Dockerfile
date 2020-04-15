@@ -70,7 +70,7 @@ RUN . /usr/local/bin/proxydetect && \
  yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
  yum-config-manager --disable "pgdg*" && \
  yum-config-manager --enable "pgdg95" && \
- yum-config-manager --setopt="pgdg95.exclude=postgis*,libpqxx*" --save && \
+ yum-config-manager --setopt="pgdg*exclude=postgis*,libpqxx*" --save && \
  yum-config-manager --setopt="epel.exclude=librsvg2*" --save && \
  yum -y update && \
  yum -y reinstall --setopt=override_install_langs='' --setopt=tsflags='' glibc-common && \
