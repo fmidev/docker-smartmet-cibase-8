@@ -107,7 +107,6 @@ for step in $* ; do
 	deps)
 	    insudo yum -y clean all
 	    insudo yum-builddep -y *.spec
-	    insudo ldconfig
 	    ;;
 	testprep)
 	    # Symbolically link already installed smartmet .so and .a files here
@@ -120,7 +119,6 @@ for step in $* ; do
         insudo yum install -y git make || true # Install make regardless but ignore errors
 	    sed -e 's/^BuildRequires:/#BuildRequires:/' -e 's/^#TestRequires:/BuildRequires:/' < *.spec > /tmp/test.spec
 	    insudo yum-builddep -y /tmp/test.spec
-	    insudo ldconfig
 	    ;;
 	test)
 	    test -r $test_disable && (
