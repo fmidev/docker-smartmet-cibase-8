@@ -105,6 +105,7 @@ for step in $* ; do
 	    insudo yum install -y $DISTDIR/*.rpm
 	    ;;
 	deps)
+	    insudo yum -y clean all
 	    insudo yum-builddep -y *.spec
 	    ;;
 	testprep)
