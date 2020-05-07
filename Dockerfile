@@ -59,7 +59,6 @@ RUN . /usr/local/bin/proxydetect && \
  yum -y install rpm-build && \
  yum -y install yum-plugin-versionlock && \
  yum -y install https://download.fmi.fi/smartmet-open/rhel/7/x86_64/smartmet-open-release-17.9.28-1.el7.fmi.noarch.rpm && \
- yum -y install https://download.fmi.fi/fmiforge/rhel/7/x86_64/fmiforge-release-17.9.28-1.el7.fmi.noarch.rpm && \
  yum -y install ccache && \
  yum -y install createrepo_c && \
  yum -y install git && \
