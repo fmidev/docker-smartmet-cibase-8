@@ -72,6 +72,9 @@ RUN . /usr/local/bin/proxydetect && \
  yum-config-manager --setopt="pgdg*.exclude=postgis*" --save && \
  yum-config-manager --setopt="epel.exclude=librsvg2*" --save && \
  yum -y install postgresql95 postgis \
+ yum -y install boost169-chrono boost169-devel boost169-timer boost169-date-time boost169-filesystem \
+                boost169-iostreams boost169-locale boost169-program-options boost169-regex boost169-serialization \
+                boost169-system boost169-thread boost169-timer && \
  yum -y update && \
  yum -y reinstall --setopt=override_install_langs='' --setopt=tsflags='' glibc-common && \
  yum clean all && \
