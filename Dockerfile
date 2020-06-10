@@ -71,7 +71,7 @@ RUN . /usr/local/bin/proxydetect && \
  yum-config-manager --enable pgdg-common pgdg95 && \
  yum-config-manager --setopt="pgdg*.exclude=postgis*" --save && \
  yum-config-manager --setopt="epel.exclude=librsvg2*" --save && \
- cat /etc/yum.repos.d/pgdg* && \
+ yum -y install postgresql95 postgis \
  yum -y update && \
  yum -y reinstall --setopt=override_install_langs='' --setopt=tsflags='' glibc-common && \
  yum clean all && \
