@@ -72,7 +72,10 @@ if [ ! -d .git ] ; then
 	exit 1
 fi
 echo "Source tree base is in `pwd`"
-echo "Git origin is `git remote get-url origin`"
+
+# Not supported on older git versions:
+# echo "Git origin is `git remote get-url origin`"
+echo "Git origin is `git config --get remote.origin.url`"
 
 # Try to find/create suitable directory for build time distribution files
 if [ -z "$DISTDIR" ] ; then
