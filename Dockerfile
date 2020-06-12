@@ -48,6 +48,9 @@ RUN set -ex; . /usr/local/bin/proxydetect; \
 	yum clean all && \
  	rm -rf /tmp/* /var/cache/yum
 
+# Disable repo index caching to avoid EPEL problems
+RUN yum-config-manager --setopt=epel.http_caching=packages --save
+
 # Preinstall some packeges and enable extra repositories
 # Yum has a (mis)feature where the return value is 0 for multiple packages if any of them succeed.
 # Have to run every install in a single command as they all need to succeed.
