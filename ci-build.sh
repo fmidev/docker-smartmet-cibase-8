@@ -108,8 +108,6 @@ for step in $* ; do
 	    insudo yum install -y $DISTDIR/*.rpm
 	    ;;
 	deps)
-	    ls -la /etc/yum.repos.d/
-	    cat /etc/yum.repos.d/pgdg-redhat-all.repo
 	    insudo yum -y clean all
 	    insudo yum-builddep -y *.spec
 	    ;;
