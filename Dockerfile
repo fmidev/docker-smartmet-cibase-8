@@ -106,7 +106,8 @@ RUN mkdir -m 777 /ccache && \
     ln -s /usr/bin/ccache /usr/local/bin/c++ && \
     ln -s /usr/bin/ccache /usr/local/bin/g++ && \
     ln -s /usr/bin/ccache /usr/local/bin/gcc && \
-    ln -s /usr/bin/ccache /usr/local/bin/cc
+    ln -s /usr/bin/ccache /usr/local/bin/cc && \
+    ln -s /usr/bin/ccache /usr/local/bin/clang++
 
 # Keep yum cache around
 # Useful for multiple runs of the same machine, if /var/cache/yum is mounted from host environment.
