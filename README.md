@@ -1,5 +1,5 @@
-# docker-smartmet-cibase
-A docker image as a base for CI machinery builds and test
+# docker-smartmet-cibase-8
+A docker image as a base for CI machinery builds and test on CentOS 8.
 
 ## Changes/additions compared to basic CentOS
 

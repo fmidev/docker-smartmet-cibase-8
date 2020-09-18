@@ -1,4 +1,4 @@
-FROM centos:7
+FROM centos:8
 
 # A base fmi image with proper repositories in place
 
@@ -61,7 +61,7 @@ RUN . /usr/local/bin/proxydetect && \
  yum -y install deltarpm && \
  yum -y install rpm-build && \
  yum -y install yum-plugin-versionlock && \
- yum -y install https://download.fmi.fi/smartmet-open/rhel/7/x86_64/smartmet-open-release-17.9.28-1.el7.fmi.noarch.rpm && \
+ yum -y install https://download.fmi.fi/smartmet-open/rhel/8/x86_64/smartmet-open-release-20.8.28-1.el8.fmi.noarch.rpm && \
  yum -y install llvm && \
  yum -y install ccache && \
  yum -y install createrepo_c && \
@@ -70,7 +70,7 @@ RUN . /usr/local/bin/proxydetect && \
  yum -y install sudo && \
  yum -y install rpmlint && \
  yum -y install yum-utils && \
- yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
+ yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
  yum-config-manager --disable "pgdg*" && \
  yum-config-manager --enable pgdg-common pgdg95 && \
  yum-config-manager --setopt="pgdg*.exclude=postgis*" --save && \
