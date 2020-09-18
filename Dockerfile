@@ -71,6 +71,7 @@ RUN . /usr/local/bin/proxydetect && \
  yum -y install sudo && \
  yum -y install rpmlint && \
  dnf -y module disable postgresql:12 && \
+ dnf config-manager --set-enabled PowerTools && \
  yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
  yum-config-manager --disable "pgdg*" && \
  yum-config-manager --enable pgdg-common pgdg12 && \
