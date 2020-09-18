@@ -76,7 +76,7 @@ RUN . /usr/local/bin/proxydetect && \
  yum-config-manager --enable pgdg-common pgdg12 && \
  yum-config-manager --disable epel-source && \
  yum -y update && \
- yum -y install postgresql12 postgis && \
+ yum -y install postgresql12 postgis30_12 && \
  yum -y reinstall --setopt=override_install_langs='' --setopt=tsflags='' glibc-common && \
  yum clean all && \
  rm -rf /var/cache/yum
