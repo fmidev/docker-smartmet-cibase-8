@@ -57,7 +57,7 @@ RUN set -ex; . /usr/local/bin/proxydetect; \
 #  - http caching is disabled to avoid EPEL problems
 
 RUN . /usr/local/bin/proxydetect && \
- yum -y install deltarpm && \
+ yum -y install drpm && \
  yum -y install rpm-build && \
  yum -y install yum-utils && \
  yum -y install yum-plugin-versionlock && \
