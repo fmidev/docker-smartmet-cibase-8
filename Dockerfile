@@ -72,10 +72,10 @@ RUN . /usr/local/bin/proxydetect && \
  yum -y install rpmlint && \
  yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
  yum-config-manager --disable "pgdg*" && \
- yum-config-manager --enable pgdg-common pgdg95 && \
+ yum-config-manager --enable pgdg-common pgdg12 && \
  yum-config-manager --disable epel-source && \
  yum -y update && \
- yum -y install postgresql95 postgis && \
+ yum -y install postgresql12 postgis && \
  yum -y reinstall --setopt=override_install_langs='' --setopt=tsflags='' glibc-common && \
  yum clean all && \
  rm -rf /var/cache/yum
