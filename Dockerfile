@@ -61,7 +61,7 @@ RUN . /usr/local/bin/proxydetect && \
  yum -y install yum-plugin-versionlock && \
  yum-config-manager --setopt=http_caching=packages --save && \
  yum -y install https://download.fmi.fi/smartmet-open/rhel/8/x86_64/smartmet-open-release-20.8.28-1.el8.fmi.noarch.rpm && \
- yum -y install llvm && \
+ yum -y install clang && \
  yum -y install ccache && \
  yum -y install createrepo_c && \
  yum -y install git && \
